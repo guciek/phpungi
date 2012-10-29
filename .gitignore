@@ -1,0 +1,10 @@
+phpungi_modules/10-login/admins/*
+phpungi_modules/10-login/lock
+phpungi_modules/15-page/pages/*
+phpungi_modules/31-article/articles/*
+phpungi_modules/32-gallery/pages/*
+phpungi_modules/33-icon/icons/*
+phpungi_modules/34-attachments/pages/*
+phpungi_modules/60-specialpages/pages/*
+phpungi_modules/32-gallery/thumb_size
+phpungi_modules/33-icon/thumb_size
