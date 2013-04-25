@@ -5,6 +5,17 @@
 // the Free Software Foundation, version 2 or 3.
 
 var article_admin = function() {
+	var add_css = (function() {
+		var done = false;
+		return function() {
+			if (done) { return; }
+			done = true;
+			var style = document.createElement('style');
+			style.type = 'text/css';
+			style.innerHTML = 'div.adminpopup img { max-width: 100px; max-height: 50px }';
+			document.getElementsByTagName('head')[0].appendChild(style);
+		};
+	})();
 	function clean_html(h) {
 		h = h.split("\n").join("<br />");
 		var r = "";
@@ -48,6 +59,7 @@ var article_admin = function() {
 		while (i < h.length) {
 			var c = h.charAt(i);
 			i++;
+			var tag = '', originaltag = '';
 			if (c == '<') {
 				var p = h.indexOf('>', i);
 				if (p < 0) { break; }
@@ -58,6 +70,8 @@ var article_admin = function() {
 				tag = tag.split(' ')[0];
 				tag = tag.split("\t")[0];
 				i = p+1;
+			}
+			if ((tag !== '') && (tag !== 'img')) {
 				if (tag == 'div') {
 					tag = 'p';
 				}
@@ -106,7 +120,8 @@ var article_admin = function() {
 						if (p2 < 0) p2 = originaltag.length;
 						var href = originaltag.substring(p, p2);
 						if ((href.charAt(0) == '/')
-							|| (href.substring(0, 7) == 'http://')) {
+							|| (href.substring(0, 7) == 'http://')
+							|| (href.substring(0, 8) == 'https://')) {
 							wanted_inline = 'a href="'+href+'"';
 						}
 					}
@@ -143,7 +158,9 @@ var article_admin = function() {
 						whitespace++;
 					}
 				} else if (opened_block == 'pre') {
-					r += c;
+					if (tag === '') {
+						r += c;
+					}
 				} else {
 					if (opened_block != 'p') {
 						if (wanted_inline == 'b') {
@@ -164,7 +181,19 @@ var article_admin = function() {
 					if (opened_inline != wanted_inline) {
 						open_inline(wanted_inline);
 					}
-					r += c;
+					if (tag === '') {
+						r += c;
+					} else if (tag == 'img') {
+						var p = originaltag.indexOf('src="data:', 2);
+						if (p >= 0) {
+							p += 10;
+							var p2 = originaltag.indexOf('"', p);
+							if (p2 >= 0) {
+								var imgdata = originaltag.substring(p, p2);
+								r += '<img src="data:'+imgdata+'" />';
+							}
+						}
+					}
 				}
 			}
 		}
@@ -197,6 +226,48 @@ var article_admin = function() {
 				b.style.marginRight = "5px";
 				bar.appendChild(b);
 				return b;
+			}
+			function imgbtn(text) {
+				cap(text);
+				input = document.createElement("input");
+				input.type = 'file';
+				input.style.fontSize = "11px";
+				input.style.marginRight = "5px";
+				input.style.width = "150px";
+				input.style.padding = "0";
+				input.style.border = "0";
+				input.style.background = "transparent";
+				input.onchange = function() {
+					var fr;
+					try {
+						fr = new FileReader();
+					} catch (err) {
+						alert("Przeglądarka nie obsługuje tej funkcji!");
+						return;
+					}
+					if (input.files.length < 1) {
+						return;
+					}
+					fr.onload = function(e) {
+						var data = e.target.result;
+						if ((data.substring(0, 14) !== 'data:image/png') &&
+								(data.substring(0, 15) !== 'data:image/jpeg')) {
+							return;
+						}
+						if (data.length > 20000) {
+							alert("Plik jest zbyt duży!");
+						} else {
+							if (document.execCommand('inserthtml', false,
+									'<img src="'+data+'" />')) {
+								afterchange('');
+							} else {
+								afterchange('<br /><img src="'+data+'" />');
+							}
+						}
+					};
+					fr.readAsDataURL(input.files[0]);
+				}
+				bar.appendChild(input);
 			}
 			function btn(text, a, par) {
 				var input;
@@ -234,6 +305,8 @@ var article_admin = function() {
 			btn("kod", "formatBlock", "pre");
 			btn("h1", "formatBlock", "h1");
 			btn("h2", "formatBlock", "h2");
+			cap(" ");
+			imgbtn("wstaw obrazek:");
 			bar.appendChild(document.createElement('br'));
 			cap("tekst:");
 			btn("zwykły", "removeFormat", false);
@@ -312,6 +385,8 @@ var article_admin = function() {
 	}
 	function popup(init_html) {
 		var e = document.createElement("div");
+		e.className = 'adminpopup';
+		add_css();
 
 		var bg = document.createElement("div");
 		bg.style.position = "fixed";

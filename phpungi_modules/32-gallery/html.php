@@ -149,13 +149,8 @@ class gallery {
 		return $code;
 	}
 	private static function insertinline($page, &$h, $code, $id) {
-		$p1 = strpos($h, '<div class="article">');
-		if (!$p1) return false;
-		$p2 = strpos($h, '</div>', $p1+10);
-		if (!$p2) return false;
-		$p = strpos($h, '[[FULLPHOTO]]', $p1+10);
+		$p = strpos($h, '[[FULLPHOTO]]');
 		if (!$p) return false;
-		if ($p >= $p2) return false;
 		$h = substr($h, 0, $p).'<img src="/file/gallery/'.
 			$code.'/'.$page.'/'.$id.'.jpg" alt="[photo'.$id.']" />'.
 			substr($h, $p+13);
@@ -171,8 +166,10 @@ class gallery {
 			if (strpos($fn, '-') !== false) continue;
 			if (($p = (strpos($fn, '.'))) === false) continue;
 			$id = substr($fn, 0, $p);
-			if ($inline && self::insertinline($page, $h,
-				$code, $id)) continue;
+			if ($inline && self::insertinline($page, $h, $code, $id)) {
+				$inline = false;
+				continue;
+			}
 			$inline = false;
 			$r .= '<li><a href="/file/gallery/'.$code.'/'.$page.'/'.
 				$id.'.jpg"><img src="/file/gallery/'.$code.'/'.$page.'/'.
