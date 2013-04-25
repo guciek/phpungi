@@ -119,6 +119,7 @@ class page {
 		self::file_write('pages/'.$page.'/children', implode("\n", $children));
 	}
 	private static function admin_btn($label, $js_fun, $subject, $def = '') {
+		$def = str_replace('&', '', $def);
 		return '<span style="cursor:pointer;text-decoration:underline;'.
 				'font-size:11px;color:#822;font-family:serif;'.
 				'font-weight:bold" onclick="page_admin.'.
