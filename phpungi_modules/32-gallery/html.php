@@ -149,8 +149,14 @@ class gallery {
 		return $code;
 	}
 	private static function insertinline($page, &$h, $code, $id) {
-		$p = strpos($h, '[[FULLPHOTO]]');
+		$p1 = strpos($h, '<div class="article">');
+		if (!$p1) return false;
+		$p2 = strpos($h, '</div>', $p1+10);
+		if (!$p2) return false;
+		$p = strpos($h, '[[FULLPHOTO]]', $p1+10);
 		if (!$p) return false;
+		if ($p >= $p2) return false;
+
 		$h = substr($h, 0, $p).'<img src="/file/gallery/'.
 			$code.'/'.$page.'/'.$id.'.jpg" alt="[photo'.$id.']" />'.
 			substr($h, $p+13);
