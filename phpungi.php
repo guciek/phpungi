@@ -98,14 +98,15 @@ if (strtolower($_SERVER['REQUEST_METHOD']) != 'get') {
 
 if ($html == '') {
 	header('HTTP/1.1 503 Service Unavailable');
-	$html = '<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">'."\n".
-		'<html><head>'."\n".
+	$html = '<!DOCTYPE html>'."\n".
+		'<html xmlns="http://www.w3.org/1999/xhtml" lang="en">'."\n".
+		'<head>'."\n".
 		'<title>503 Service Unavailable</title>'."\n".
 		'</head><body>'."\n".
 		'<h1>Service Unavailable</h1>'."\n".
 		'<p>This server is currently undergoing maintenance.</p>'.
 		'<p>Please check back soon.</p>'."\n".
-		'<hr>'."\n".
+		'<hr />'."\n".
 		'</body></html>'."\n";
 }
 

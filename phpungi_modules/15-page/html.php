@@ -56,6 +56,13 @@ class page {
 		return $data;
 	}
 	private static function file_write($path, $data) {
+		if ($data === "") {
+			if (is_file($path)) {
+				return (@unlink($path));
+			} else {
+				return true;
+			}
+		}
 		if (!($h = fopen($path, 'wb'))) {
 			error_log("fopen($path, 'wb') returned $h");
 			return false;
@@ -137,7 +144,12 @@ class page {
 	private static function linktopage($page, $lang) {
 		$t = self::title($page, $lang);
 		if (strlen($t) < 1) return '';
-		return '<a href="/'.$page.'/'.$lang.'">'.$t.'</a>';
+		$l = '/'.$page.'/'.$lang;
+		$url = self::file_read('pages/'.$page.'/link');
+		if ((!self::$admin) && ($url !== '')) {
+			$l = $url;
+		}
+		return '<a href="'.$l.'">'.$t.'</a>';
 	}
 	private static function up($page) {
 		$page = trim(self::file_read('pages/'.$page.'/parent'));
@@ -267,6 +279,17 @@ class page {
 			self::file_write('pages/'.$page.'/title-'.$lang, $name);
 		}
 
+		if (array_key_exists('page_chlink', $_POST)) {
+			if ($page == 'index') return;
+			$url = trim(self::safetext($_POST['page_chlink']));
+			if ((substr($url, 0, 7) === 'http://') ||
+					(substr($url, 0, 8) === 'https://') ||
+					(substr($url, 0, 1) === '/') ||
+					($url === '')) {
+				self::file_write('pages/'.$page.'/link', $url);
+			}
+		}
+
 		if (array_key_exists('page_chtitle', $_POST)) {
 			if (strlen(self::title($page, $lang)) < 1) return;
 			$name = trim(self::safetext($_POST['page_chtitle']));
@@ -305,11 +328,29 @@ class page {
 				'</h1>', $h);
 			$h = str_replace('</h1>', ' '.
 				self::admin_btn('zmień tytuł', 'chtitle',
-				$page.'/'.$lang, self::title($page, $lang, true)).
+					$page.'/'.$lang, self::title($page, $lang, true)).
+				'</h1>', $h);
+			$h = str_replace('</h1>', ' '.
+				self::admin_btn('link', 'chlink',
+					$page.'/'.$lang, self::file_read('pages/'.$page.'/link')).
 				'</h1>', $h);
 
 		} else {
 			if (is_file('pages/'.$page.'/hidden')) return $h;
+			if (is_file('pages/'.$page.'/link')) {
+				return
+					'<?xml version="1.0" encoding="utf-8" ?><!DOCTYPE html>'."\n".
+					'<html xmlns="http://www.w3.org/1999/xhtml" lang="pl">'."\n".
+					'<head>'."\n".
+					'	<meta charset="utf-8" />'."\n".
+					'	<title>'.self::title($page, $lang, true).'</title>'."\n".
+					'</head>'."\n".
+					'<body>'."\n".
+					'	<a href="'.self::file_read('pages/'.$page.'/link').'">'.
+							self::title($page, $lang, true).'</a>'."\n".
+					'</body>'."\n".
+					'</html>'."\n";
+			}
 		}
 		$h = str_replace(
 			array(

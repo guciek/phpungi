@@ -121,6 +121,16 @@ var page_admin = function() {
 		e.appendChild(form_submit("Utwórz"));
 		return e;
 	}
+	function chlink_form(subject, def) {
+		var e = document.createElement("form");
+		e.method = "POST";
+		e.action = window.location;
+		e.appendChild(form_label("Ustaw przekierowanie strony na adres:"));
+		e.appendChild(form_hidden("page_adminsubject", subject));
+		e.appendChild(form_input("page_chlink", def));
+		e.appendChild(form_submit("Zmień"));
+		return e;
+	}
 	function chtitle_form(subject, def) {
 		var e = document.createElement("form");
 		e.method = "POST";
@@ -145,6 +155,9 @@ var page_admin = function() {
 		},
 		newlang: function(subject) {
 			popup(newlang_form(subject), 300, 85);
+		},
+		chlink: function(subject, def) {
+			popup(chlink_form(subject, def), 300, 85);
 		},
 		chtitle: function(subject, def) {
 			popup(chtitle_form(subject, def), 300, 85);

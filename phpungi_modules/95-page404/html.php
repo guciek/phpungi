@@ -7,16 +7,16 @@
 
 function page404() {
 	header('HTTP/1.1 404 Not Found');
-	header('Content-Type: text/html');
-	return '<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">'."\n".
-		'<html><head>'."\n".
+	return '<!DOCTYPE html>'."\n".
+		'<html xmlns="http://www.w3.org/1999/xhtml" lang="en">'."\n".
+		'<head>'."\n".
 		'<title>404 Not Found</title>'."\n".
 		'</head><body>'."\n".
 		'<h1>Not Found</h1>'."\n".
 		'<p>Requested URL "'.$_SERVER['REQUEST_URI'].
 			'" could not be found on this server.</p>'.
 		'<p>Please go to <a href="/">main page of this site</a>.</p>'."\n".
-		'<hr>'."\n".
+		'<hr />'."\n".
 		'</body></html>'."\n";
 }
 if (strpos($html, '<!--title-->') !== false) {
